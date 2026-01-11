@@ -13,15 +13,11 @@ import pandas as pd
 import numpy as np
 import altair as alt
 
-# ============================
-# 1️⃣ Load Dataset
-# ============================
+
 file_name = '/content/Basic dataset.csv'   # Input dataset path
 df = pd.read_csv(file_name)
 
-# ============================
-# 2️⃣ Compute Main Zone Boundaries (5×5)
-# ============================
+
 nx, ny = 5, 5
 x_min, x_max = df['x'].min(), df['x'].max()
 y_min, y_max = df['y'].min(), df['y'].max()
@@ -29,9 +25,7 @@ y_min, y_max = df['y'].min(), df['y'].max()
 x_divisions = np.linspace(x_min, x_max, nx + 1)
 y_divisions = np.linspace(y_min, y_max, ny + 1)
 
-# ============================
-# 3️⃣ Create Main Zones (A1–E5)
-# ============================
+
 labels = [f"{chr(65 + i)}{j + 1}" for i in range(nx) for j in range(ny)]
 zones = []
 
@@ -49,9 +43,6 @@ zones_df = pd.DataFrame(zones)
 zones_df['x_center'] = (zones_df['x_start'] + zones_df['x_end']) / 2
 zones_df['y_center'] = (zones_df['y_start'] + zones_df['y_end']) / 2
 
-# ============================
-# 4️⃣ Create Subzones (2×2 inside each Main Zone)
-# ============================
 subzones = []
 
 for _, row in zones_df.iterrows():
@@ -70,9 +61,6 @@ for _, row in zones_df.iterrows():
 
 subzones_df = pd.DataFrame(subzones)
 
-# ============================
-# 5️⃣ Visualization (Grid + Vehicles)
-# ============================
 df['x_jitter'] = df['x'] + np.random.uniform(-0.5, 0.5, len(df))
 df['y_jitter'] = df['y'] + np.random.uniform(-0.5, 0.5, len(df))
 
@@ -116,9 +104,6 @@ final_chart = (
 # Display grid visualization
 final_chart.display()
 
-# ============================
-# 6️⃣ Assign Zones to Each Vehicle
-# ============================
 def assign_zones(x, y):
     for _, sub in subzones_df.iterrows():
         if sub['x_start'] <= x <= sub['x_end'] and sub['y_start'] <= y <= sub['y_end']:
@@ -127,18 +112,14 @@ def assign_zones(x, y):
 
 df[['main_zone', 'sub_zone']] = df.apply(lambda r: assign_zones(r['x'], r['y']), axis=1)
 
-# ============================
-# 7️⃣ Save Analyzed Results
-# ============================
+
 output_path = '/content/Zone block output.csv'
 df.to_csv(output_path, index=False)
 
-print("✅ Analysis complete!")
-print(f"💾 New dataset saved with zone info at: {output_path}")
+print("Analysis complete!")
+print(f" New dataset saved with zone info at: {output_path}")
 
-# =====================================================
-# 📊 ML Evaluation — Zone Prediction (Final & Polished)
-# =====================================================
+
 
 import pandas as pd
 import numpy as np
@@ -179,14 +160,13 @@ rec  = recall_score(y_test, y_pred, average='weighted', zero_division=0) * 100
 f1   = f1_score(y_test, y_pred, average='weighted', zero_division=0) * 100
 
 # --- Print concise results ---
-print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print("📊 ZONE / BLOCK EFFICIENCY — ML EVALUATION")
-print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print(f"✅ Accuracy   : {acc:.2f}%")
-print(f"🎯 Precision  : {prec:.2f}%")
-print(f"🔍 Recall     : {rec:.2f}%")
-print(f"🏆 F1-Score   : {f1:.2f}%")
-print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+print("ZONE / BLOCK EFFICIENCY — ML EVALUATION")
+print(f"Accuracy   : {acc:.2f}%")
+print(f"Precision  : {prec:.2f}%")
+print(f"Recall     : {rec:.2f}%")
+print(f"F1-Score   : {f1:.2f}%")
+
 
 # --- Confusion Matrix Visualization ---
 plt.figure(figsize=(8, 6))
@@ -206,9 +186,7 @@ import numpy as np
 import altair as alt
 import os
 
-# ==========================
-# CONFIGURATION
-# ==========================
+
 INPUT_CSV = "/content/Zone block output.csv"
 OUTPUT_CSV = "/content/Fowaders_OUTPUT.csv"
 
@@ -233,18 +211,12 @@ EVENT_WEIGHTS = {
 VEHICLE_WEIGHTS = {"bus": 1.0, "car": 0.6}
 
 
-# ==========================================================
-# 1️⃣ LOAD DATA
-# ==========================================================
 def load_data(path):
     df = pd.read_csv(path)
     print(f"✅ Dataset loaded successfully! Shape: {df.shape}")
     return df
 
 
-# ==========================================================
-# 2️⃣ COMPUTE ZONES (5×5 MAIN GRID + 2×2 SUBZONES)
-# ==========================================================
 def create_zones(df):
     x_min, x_max = df["x"].min(), df["x"].max()
     y_min, y_max = df["y"].min(), df["y"].max()
@@ -289,9 +261,7 @@ def create_zones(df):
     return zones_df, subzones_df
 
 
-# ==========================================================
-# 3️⃣ ASSIGN VEHICLES TO ZONES
-# ==========================================================
+
 def assign_zones(df, subzones_df):
     def match_zone(x, y):
         for _, sub in subzones_df.iterrows():
@@ -303,9 +273,6 @@ def assign_zones(df, subzones_df):
     return df
 
 
-# ==========================================================
-# 4️⃣ COMPUTE FORWARDER PRIORITY SCORE
-# ==========================================================
 def compute_scores(df):
     df["event_weight"] = df["event_type"].map(EVENT_WEIGHTS).fillna(0.3)
     df["vehicle_weight"] = df["type"].map(VEHICLE_WEIGHTS).fillna(0.6)
@@ -320,9 +287,6 @@ def compute_scores(df):
     return df
 
 
-# ==========================================================
-# 5️⃣ SELECT FORWARDERS PER ZONE & TIMESTAMP
-# ==========================================================
 def select_forwarders(df):
     df["is_forwarder"] = 0
     grouped = df.groupby(["sub_zone"], group_keys=False)
@@ -341,9 +305,6 @@ def select_forwarders(df):
     return df
 
 
-# ==========================================================
-# 6️⃣ PERFORMANCE SUMMARY
-# ==========================================================
 def summary_report(df):
     total_vehicles = len(df)
     total_forwarders = df["is_forwarder"].sum()
@@ -362,9 +323,6 @@ def summary_report(df):
     print(zone_summary.to_string(index=False))
 
 
-# ==========================================================
-# 7️⃣ INTERACTIVE VISUALIZATION (ZOOM + TOOLTIP)
-# ==========================================================
 def visualize(df, zones_df, subzones_df):
     df["x_jitter"] = df["x"] + np.random.uniform(-0.4, 0.4, len(df))
     df["y_jitter"] = df["y"] + np.random.uniform(-0.4, 0.4, len(df))
@@ -402,9 +360,6 @@ def visualize(df, zones_df, subzones_df):
     print("\n✅ Visualization displayed successfully (Forwarders = Orange, Others = Blue).")
 
 
-# ==========================================================
-# 8️⃣ MAIN EXECUTION
-# ==========================================================
 def main():
     print("\n🚀 Starting VANET SCAF Forwarder Selection Pipeline...\n")
 
@@ -425,9 +380,8 @@ def main():
 if __name__ == "__main__":
     main()
 
-# =====================================================
-# 📊 ML PERFORMANCE EVALUATION — FORWARDER SELECTION (FINAL EXPLAINABLE VERSION)
-# =====================================================
+
+#  ML PERFORMANCE EVALUATION — FORWARDER SELECTION 
 
 import pandas as pd
 import numpy as np
@@ -442,7 +396,7 @@ if 'is_forwarder' not in df.columns:
     raise ValueError("❌ 'is_forwarder' column not found. Run the forwarder selection code first!")
 
 print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print("📊 MACHINE LEARNING EVALUATION — FORWARDER SELECTION (ENHANCED)")
+print("MACHINE LEARNING EVALUATION — FORWARDER SELECTION (ENHANCED)")
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
 # --- Step 1: Intelligent Prediction Simulation ---
@@ -467,11 +421,11 @@ f1   = f1_score(true, pred, zero_division=0) * 100
 kappa = cohen_kappa_score(true, pred) * 100
 
 # --- Step 3: Display Results ---
-print(f"✅ Accuracy   : {acc:.2f}%")
-print(f"🎯 Precision  : {prec:.2f}%")
-print(f"🔍 Recall     : {rec:.2f}%")
-print(f"🏆 F1-Score   : {f1:.2f}%")
-print(f"📏 Kappa Score: {kappa:.2f}%")
+print(f"Accuracy   : {acc:.2f}%")
+print(f"Precision  : {prec:.2f}%")
+print(f"Recall     : {rec:.2f}%")
+print(f"F1-Score   : {f1:.2f}%")
+print(f" Kappa Score: {kappa:.2f}%")
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
 # --- Step 4: Confusion Matrix ---
@@ -485,15 +439,15 @@ plt.show()
 
 # --- Step 5: Text Explanation Output ---
 print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print("📘 SIMPLE INTERPRETATION — WHAT THESE RESULTS MEAN")
+print("SIMPLE INTERPRETATION — WHAT THESE RESULTS MEAN")
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print(f"✅ Accuracy ({acc:.2f}%): Out of all vehicles, {acc:.1f}% were correctly classified as forwarder/non-forwarder.")
-print(f"🎯 Precision ({prec:.2f}%): When the model predicted a vehicle as forwarder, it was right {prec:.1f}% of the time.")
-print(f"🔍 Recall ({rec:.2f}%): Out of all true forwarders, the model successfully detected {rec:.1f}% of them.")
-print(f"🏆 F1-Score ({f1:.2f}%): A balanced measure of precision and recall — shows stable, consistent accuracy.")
-print(f"📏 Kappa ({kappa:.2f}%): Agreement score between predicted and actual — above 80% means excellent reliability.")
+print(f"Accuracy ({acc:.2f}%): Out of all vehicles, {acc:.1f}% were correctly classified as forwarder/non-forwarder.")
+print(f"Precision ({prec:.2f}%): When the model predicted a vehicle as forwarder, it was right {prec:.1f}% of the time.")
+print(f"Recall ({rec:.2f}%): Out of all true forwarders, the model successfully detected {rec:.1f}% of them.")
+print(f"F1-Score ({f1:.2f}%): A balanced measure of precision and recall — shows stable, consistent accuracy.")
+print(f" Kappa ({kappa:.2f}%): Agreement score between predicted and actual — above 80% means excellent reliability.")
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print("\n🧠 Overall Meaning:")
+print("\nOverall Meaning:")
 print("The forwarder selection model performs extremely well — almost all vehicles were classified correctly.")
 print("Minor errors (<3%) occur only for low-priority or borderline cases, simulating realistic SCAF model behavior.")
 print("This indicates a strong match between your intelligent rule-based logic and ML classification accuracy.")
@@ -503,14 +457,7 @@ print("━━━━━━━━━━━━━━━━━━━━━━━━�
 
 """
 
-v
-
-# ================================================================
-# 🤖 MACHINE LEARNING PERFORMANCE EVALUATION — SCAF MODEL
-# ================================================================
-# Author: Surya
-# Description: Evaluates model prediction performance for forwarder selection
-# ================================================================
+# MACHINE LEARNING PERFORMANCE EVALUATION — SCAF MODEL
 
 import pandas as pd
 import numpy as np
@@ -525,11 +472,8 @@ import warnings
 # Suppress all warnings
 warnings.filterwarnings("ignore")
 
-# ================================================================
-# STEP 1️⃣ — LOAD DATASET
-# ================================================================
 print("\n" + "-" * 70)
-print("📊 MACHINE LEARNING PERFORMANCE EVALUATION — SCAF MODEL")
+print("MACHINE LEARNING PERFORMANCE EVALUATION — SCAF MODEL")
 print("-" * 70)
 
 df = pd.read_csv("/content/optimized_forwarders.csv")
@@ -539,9 +483,6 @@ if "is_forwarder" not in df.columns:
 
 print(f"✅ Dataset Loaded Successfully! Total Records: {len(df)}")
 
-# ================================================================
-# STEP 2️⃣ — SIMULATE MODEL PREDICTIONS
-# ================================================================
 np.random.seed(42)
 
 # Simulate model predictions (95% accuracy assumption)
@@ -554,9 +495,6 @@ df["predicted_forwarder"] = np.where(
 true = df["is_forwarder"]
 pred = df["predicted_forwarder"]
 
-# ================================================================
-# STEP 3️⃣ — CALCULATE PERFORMANCE METRICS
-# ================================================================
 accuracy = accuracy_score(true, pred) * 100
 precision = precision_score(true, pred, zero_division=0) * 100
 recall = recall_score(true, pred, zero_division=0) * 100
@@ -575,9 +513,6 @@ print(f"🔁 F1-Score      : {f1:.2f}%")
 print(f"⚖️  Kappa Score   : {kappa:.2f}%")
 print("-" * 70)
 
-# ================================================================
-# STEP 4️⃣ — CONFUSION MATRIX VISUALIZATION
-# ================================================================
 labels = [0, 1]  # 0 = Non-Forwarder, 1 = Forwarder
 cm = confusion_matrix(true, pred, labels=labels)
 
@@ -593,9 +528,6 @@ plt.ylabel("Actual")
 plt.tight_layout()
 plt.show()
 
-# ================================================================
-# STEP 5️⃣ — METRIC EQUATIONS & EXPLANATIONS
-# ================================================================
 print("\n" + "-" * 70)
 print("📘 PERFORMANCE METRIC EQUATIONS & EXPLANATIONS")
 print("-" * 70)
@@ -619,9 +551,6 @@ for i, (name, formula, meaning) in enumerate(metrics, 1):
     print(f"   Meaning : {meaning}")
 print("-" * 70)
 
-# ================================================================
-# STEP 6️⃣ — METRIC BAR CHART VISUALIZATION
-# ================================================================
 plt.figure(figsize=(7, 4))
 metric_names = ["Accuracy", "Precision", "Recall", "F1-Score"]
 values = [accuracy, precision, recall, f1]
@@ -640,9 +569,7 @@ for bar in bars:
 plt.tight_layout()
 plt.show()
 
-# ================================================================
-# ✅ FINAL SUMMARY
-# ================================================================
+
 print("\n✅ ML Performance Evaluation Completed Successfully!")
 print("-" * 70)
 
@@ -697,24 +624,24 @@ print("\n🔹 Sample Preview (first 10 entries):")
 print(df_all[["vehicle_id", "main_zone", "sub_zone", "type", "event_type", "ndn_name"]].head(10))
 
 # ------------------- Step 7: Summary -------------------
-print("\n✅ Step 1 completed successfully!")
+print("\nStep 1 completed successfully!")
 print("All 1K vehicles now have their hierarchical NDN names assigned.")
 print("Next: We'll mark forwarders (1) and receivers (0) using optimized_forwarders.csv.")
 
 import pandas as pd
 
-print("🚀 Loading datasets...")
+print("Loading datasets...")
 
 # Load main and optimized datasets
 df_main = pd.read_csv("/content/Fowaders_OUTPUT.csv")         # 1000 vehicles
 df_forwarders = pd.read_csv("/content/optimized_forwarders.csv")  # 200 optimized forwarders
 
-print(f"✅ Main dataset loaded: {len(df_main)} rows")
-print(f"✅ Optimized forwarders loaded: {len(df_forwarders)} rows")
+print(f"Main dataset loaded: {len(df_main)} rows")
+print(f"Optimized forwarders loaded: {len(df_forwarders)} rows")
 
 # ✅ Use only the unique (vehicle_id, timestamp, sub_zone) combinations
 unique_fwd = df_forwarders[["vehicle_id", "timestamp", "sub_zone"]].drop_duplicates()
-print(f"🧩 Unique Forwarder Instances: {len(unique_fwd)}")
+print(f"Unique Forwarder Instances: {len(unique_fwd)}")
 
 # Mark all as non-forwarders initially
 df_main["is_forwarder"] = 0
@@ -731,17 +658,17 @@ df_main = df_main.merge(
 df_main["is_forwarder"] = df_main["is_forwarder_fwd"].fillna(0).astype(int)
 df_main.drop(columns=["is_forwarder_fwd"], inplace=True)
 
-# ✅ Summary
+# Summary
 total_forwarders = int(df_main["is_forwarder"].sum())
 total_vehicles = len(df_main)
 non_forwarders = total_vehicles - total_forwarders
 
-print("\n✅ Forwarder Role Assignment Complete (Timestamp-Accurate)!")
-print(f"🚗 Total Vehicles: {total_vehicles}")
-print(f"🟠 True Forwarders (is_forwarder=1): {total_forwarders}")
-print(f"⚪ Non-Forwarders (is_forwarder=0): {non_forwarders}")
+print("\nForwarder Role Assignment Complete (Timestamp-Accurate)!")
+print(f"Total Vehicles: {total_vehicles}")
+print(f"True Forwarders (is_forwarder=1): {total_forwarders}")
+print(f"Non-Forwarders (is_forwarder=0): {non_forwarders}")
 
-# ✅ Save clean dataset
+#  Save clean dataset
 output_path = "/content/dataset_generation_NDN.csv"
 df_main.to_csv(output_path, index=False)
 print(f"💾 Saved clean dataset to: {output_path}")
@@ -754,17 +681,13 @@ import pandas as pd
 import numpy as np
 import altair as alt
 
-# ===========================
-# 1️⃣ Load Dataset
-# ===========================
+
 file_path_main = "/content/Naming_NDN_dataset.csv"
 df = pd.read_csv(file_path_main)
 
 print(f"✅ Loaded main dataset: {len(df)} rows")
 
-# ===========================
-# 2️⃣ Create 5×5 Main Zones
-# ===========================
+
 nx, ny = 5, 5
 x_min, x_max = df['x'].min(), df['x'].max()
 y_min, y_max = df['y'].min(), df['y'].max()
@@ -787,9 +710,7 @@ zones_df = pd.DataFrame(zones)
 zones_df['x_center'] = (zones_df['x_start'] + zones_df['x_end']) / 2
 zones_df['y_center'] = (zones_df['y_start'] + zones_df['y_end']) / 2
 
-# ===========================
-# 3️⃣ Subzones (2×2 inside each main zone)
-# ===========================
+
 subzones = []
 for _, row in zones_df.iterrows():
     sub_x = np.linspace(row['x_start'], row['x_end'], 3)
@@ -807,23 +728,17 @@ for _, row in zones_df.iterrows():
 
 subzones_df = pd.DataFrame(subzones)
 
-# ===========================
-# 4️⃣ Generate NDN Naming (using actual event_type)
-# ===========================
+
 df["NDN_name"] = df.apply(
     lambda r: f"/Zone{r['main_zone']}/{r['sub_zone']}/{r['type']}/{r['event_type']}",
     axis=1
 )
 
-# ===========================
-# 5️⃣ Add Jitter for Visualization Clarity
-# ===========================
+
 df["x_jitter"] = df["x"] + np.random.uniform(-0.4, 0.4, len(df))
 df["y_jitter"] = df["y"] + np.random.uniform(-0.4, 0.4, len(df))
 
-# ===========================
-# 6️⃣ Define Colors
-# ===========================
+
 df["color_role"] = df.apply(
     lambda r: (
         '#FF7F00' if (r['is_forwarder'] == 1 and r['type'] == 'car') else
@@ -836,9 +751,7 @@ df["color_role"] = df.apply(
 # Add text-based role for tooltip clarity
 df["role_text"] = df["is_forwarder"].apply(lambda x: "Forwarder" if x == 1 else "Non-Forwarder")
 
-# ===========================
-# 7️⃣ Visualization Layers
-# ===========================
+
 zone_layer = alt.Chart(zones_df).mark_rect(
     fill='lightgrey', opacity=0.08, stroke='black', strokeWidth=1.2
 ).encode(
@@ -873,9 +786,7 @@ label_layer = alt.Chart(zones_df).mark_text(
     text='zone'
 )
 
-# ===========================
-# 8️⃣ Combine and Display
-# ===========================
+
 final_chart = (
     subzone_layer + zone_layer + vehicle_layer + label_layer
 ).properties(
@@ -886,11 +797,11 @@ final_chart = (
 
 final_chart.display()
 
-print("\n✅ NDN Naming Visualization Ready with Subzones and Real Event Types!")
-print("🟧 Orange = Forwarder (Car)")
-print("🔴 Red = Forwarder (Bus)")
-print("🔵 Blue = Non-Forwarder")
-print("📛 Tooltip → Shows only NDN Name and Role (from actual dataset)")
+print("\n NDN Naming Visualization Ready with Subzones and Real Event Types!")
+print("Orange = Forwarder (Car)")
+print("Red = Forwarder (Bus)")
+print("Blue = Non-Forwarder")
+print("Tooltip → Shows only NDN Name and Role (from actual dataset)")
 
 import pandas as pd
 
@@ -919,33 +830,24 @@ import random
 
 print("Altair imported successfully.")
 
-
-
-# =========================
-# 1⏸️ Load Dataset
-# =========================
 file_path = "/content/dataset_generation_NDN.csv"
 df = pd.read_csv(file_path)
-print(f"✅ Loaded dataset: {len(df)} rows")
+print(f" Loaded dataset: {len(df)} rows")
 
 
 noise_ratio = 0.01  # 2% random label flips
 flip_indices = df.sample(frac=noise_ratio, random_state=42).index
 df.loc[flip_indices, 'is_forwarder'] = 1 - df.loc[flip_indices, 'is_forwarder']
-print(f"⚠️ Introduced {len(flip_indices)} random label flips (2% noise) to 'is_forwarder' column.")
+print(f"Introduced {len(flip_indices)} random label flips (2% noise) to 'is_forwarder' column.")
 
 
-# =========================
-# 2⏸️ Add Gaussian Noise for Realistic Variation
-# =========================
+
 np.random.seed(42)
 df["x"] = df["x"] + np.random.normal(0, 50, size=len(df))
 df["y"] = df["y"] + np.random.normal(0, 50, size=len(df))
 print("🌍 Added Gaussian noise for GPS variation (±20m).")
 
-# =========================
-# 3⏸️ Parameters
-# =========================
+
 BASE_COMM_RADIUS = 1000
 BORDER_THRESHOLD = 150
 MAX_NEIGHBORS = 15
@@ -953,9 +855,7 @@ TTL_DEFAULT = 2
 edges = []
 cache = {}
 
-# =========================
-# 4⏸️ Helper Functions
-# =========================
+
 def distance(x1, y1, x2, y2):
     return sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
@@ -982,17 +882,13 @@ def dynamic_ttl(vehicle, zones_df, df):
     density = len(df[(abs(df["x"] - vehicle["x"]) <= 1000) & (abs(df["y"] - vehicle["y"]) <= 1000)])
     return 2 if (border_factor == 1 or density < 10) else 1
 
-# =========================
-# 5⏸️ Generate NDN Names (using actual event_type)
-# =========================
+
 df["NDN_name"] = df.apply(
     lambda r: f"/Zone{r['main_zone']}/{r['sub_zone']}/{r['type']}/{r['event_type']}",
     axis=1
 )
 
-# =========================
-# 6⏸️ Create Zones & Subzones
-# =========================
+
 nx, ny = 5, 5
 x_min, x_max = df["x"].min(), df["x"].max()
 y_min, y_max = df["y"].min(), df["y"].max()
@@ -1031,9 +927,7 @@ subzones_df = pd.DataFrame(subzones)
 zones_df['x_center'] = (zones_df['x_start'] + zones_df['x_end']) / 2
 zones_df['y_center'] = (zones_df['y_start'] + zones_df['y_end']) / 2
 
-# =========================
-# 7⏸️ Communication Logic
-# =========================
+
 def share_data(sender, ttl):
     """Implements VANET–NDN communication rules."""
     if ttl <= 0:
@@ -1048,7 +942,7 @@ def share_data(sender, ttl):
     comm_range = dynamic_range(sender, df)
     connections = 0
 
-    # ✅ FWD → NON-FWD (Green)
+    # FWD → NON-FWD (Green)
     if sender["is_forwarder"] == 1:
         receivers_nf = df[df["is_forwarder"] == 0].copy()
         receivers_nf["dist"] = np.sqrt((receivers_nf["x"] - sx)**2 + (receivers_nf["y"] - sy)**2)
@@ -1063,7 +957,7 @@ def share_data(sender, ttl):
                 cache.setdefault(ndn, []).append(rid)
                 connections += 1
 
-    # ✅ FWD → FWD (different event types) (Dark Goldenrod)
+    # FWD → FWD (different event types) (Dark Goldenrod)
     receivers_fwd = df[(df["is_forwarder"] == 1) & (df["vehicle_id"] != sid)].copy()
     receivers_fwd["dist"] = np.sqrt((receivers_fwd["x"] - sx)**2 + (receivers_fwd["y"] - sy)**2)
     receivers_fwd = receivers_fwd[receivers_fwd["dist"] <= comm_range]
@@ -1082,7 +976,7 @@ def share_data(sender, ttl):
         if connections >= MAX_NEIGHBORS:
             break
 
-    # ✅ NON-FWD → FWD (Interest) (Dark Blue)
+    # NON-FWD → FWD (Interest) (Dark Blue)
     # This occurs when a Non-Forwarder needs data and sends an Interest to a nearby Forwarder
     if sender["is_forwarder"] == 0:
         receivers_interest = df[df["is_forwarder"] == 1].copy()
@@ -1097,9 +991,7 @@ def share_data(sender, ttl):
                 connections += 1
 
 
-# =========================
-# 8⏸️ Execute Communication Simulation
-# =========================
+
 forwarders = df[df["is_forwarder"] == 1]
 non_forwarders = df[df["is_forwarder"] == 0]
 
@@ -1112,9 +1004,7 @@ for _, fwd in forwarders.iterrows():
 for _, nfwd in non_forwarders[non_forwarders.apply(lambda r: near_zone_border(r, zones_df), axis=1)].iterrows():
      share_data(nfwd, 1) # Non-forwarders near border can initiate interest with TTL 1
 
-# =========================
-# 🔵 Force Add 4–5 Demo NFWD→FWD Interest + 🔴 Data Response Links
-# =========================
+
 print("\n🎯 Adding 4–5 sample NFWD→FWD (Interest) and FWD→NFWD (Response) links for visualization clarity...")
 
 # Sample 5 Non-Forwarders randomly (or fewer if less than 5 are available)
@@ -1148,9 +1038,7 @@ print(f"✅ Added {len(border_nfwd_samples)} Dark Blue-Red link pairs for better
 edges_df = pd.DataFrame(edges)
 print(f"\n🔗 Communication links generated: {len(edges_df)}")
 
-# =========================
-# 9⏸️ Build Enriched Output
-# =========================
+
 df["received_from"] = df["vehicle_id"].apply(lambda vid: [
     e["from"] for e in edges if e["to"] == vid
 ])
@@ -1185,9 +1073,7 @@ df.to_csv(out_path, index=False)
 print(f"💾 Enriched dataset saved to: {out_path}")
 
 
-# =========================
-# 10⏸️ Visualization (Balanced Lines + Visible Vehicles)
-# =========================
+
 alt.data_transformers.enable("vegafusion")
 
 # 🎨 Vehicle color distinction
@@ -1207,7 +1093,7 @@ zone_layer = alt.Chart(zones_df).mark_rect(
     y='y_start:Q', y2='y_end:Q'
 )
 
-# 🔹 Subzone Layer
+#  Subzone Layer
 subzone_layer = alt.Chart(subzones_df).mark_rect(
     fill='lightblue', opacity=0.05, stroke='blue', strokeWidth=0.6
 ).encode(
@@ -1215,14 +1101,14 @@ subzone_layer = alt.Chart(subzones_df).mark_rect(
     y='y_start:Q', y2='y_end:Q'
 )
 
-# 📗 Zone Labels
+#  Zone Labels
 label_layer = alt.Chart(zones_df).mark_text(
     align='center', fontSize=11, fontWeight='bold', color='purple'
 ).encode(
     x='x_center:Q', y='y_center:Q', text='zone'
 )
 
-# ✨ Connection Lines (All colors visible, increased clarity)
+#  Connection Lines (All colors visible, increased clarity)
 connection_layer = alt.Chart(edges_df).mark_rule(
     strokeWidth=1.8, opacity=0.9 # Enhanced line thickness and opacity
 ).transform_lookup(
@@ -1235,14 +1121,14 @@ connection_layer = alt.Chart(edges_df).mark_rule(
     opacity=alt.value(0.65) # Maintain some transparency for overlapping lines
 )
 
-# 🚗 Vehicle Points (Always on top, increased clarity)
+#  Vehicle Points (Always on top, increased clarity)
 vehicle_layer = alt.Chart(df).mark_circle(size=90, opacity=1, stroke='black', strokeWidth=0.4).encode( # Enhanced size and opacity
     x='x:Q', y='y:Q',
     color=alt.Color('color_role:N', legend=None),
     tooltip=['vehicle_id:N', 'role:N', 'NDN_name:N', 'FR_code:N', 'received_count:Q', 'forwarded_to_count:Q']
 )
 
-# 🧩 Combine all layers
+#  Combine all layers
 final_chart = (
     subzone_layer + zone_layer + label_layer + connection_layer + vehicle_layer
 ).properties(
@@ -1252,9 +1138,7 @@ final_chart = (
 
 final_chart.display()
 
-# =========================
-# 📚 Summary Stats
-# =========================
+
 total_vehicles = len(df)
 fwd_count = len(df[df["is_forwarder"] == 1])
 nfwd_count = total_vehicles - fwd_count
@@ -1273,12 +1157,9 @@ print(f"🔵 Dark Blue Links (NON-FWD→FWD Interest): {blue_links}")
 print(f"🔴 Bright Red Links (FWD→NON-FWD Data Response): {red_links}")
 print("===========================================================")
 
-# ============================================================
-# 🤖 ML Model Evaluation for VANET–NDN Forwarder Prediction (Optimized)
-# ============================================================
-# Author: Surya
-# Goal: Ensure Random Forest ≥90% across all key metrics
-# ============================================================
+
+# ML Model Evaluation for VANET–NDN Forwarder Prediction (Optimized)
+
 
 import pandas as pd
 import numpy as np
@@ -1294,16 +1175,12 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-# ===============================
-# 1️⃣ Load the Enriched Dataset
-# ===============================
+
 file_path = "/content/NDN_Final_Sharing_Realistic.csv"
 df = pd.read_csv(file_path)
 print(f"✅ Loaded dataset: {len(df)} rows")
 
-# ===============================
-# 2️⃣ Preprocessing
-# ===============================
+
 # Encode categorical columns
 categorical_cols = ['main_zone', 'sub_zone', 'type', 'event_type']
 for col in categorical_cols:
@@ -1330,9 +1207,7 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# ===============================
-# 3️⃣ Train Multiple Models
-# ===============================
+
 models = {
     "Random Forest": RandomForestClassifier(
         n_estimators=800,
@@ -1363,16 +1238,12 @@ for name, model in models.items():
 
     results.append([name, acc, prec, rec, f1])
 
-# ===============================
-# 4️⃣ Create Summary Table
-# ===============================
+
 results_df = pd.DataFrame(results, columns=["Model", "Accuracy (%)", "Precision (%)", "Recall (%)", "F1-Score (%)"])
 print("\n📊 Model Comparison Summary:\n")
 print(results_df.to_string(index=False))
 
-# ===============================
-# 5️⃣ Visualize Performance
-# ===============================
+
 plt.figure(figsize=(10, 6))
 bar_width = 0.2
 indices = np.arange(len(results_df))
@@ -1389,21 +1260,16 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-# ===============================
-# 6️⃣ Interpretation
-# ===============================
+
 best = results_df.loc[results_df["Accuracy (%)"].idxmax()]
 print("\n✅ Model Evaluation Complete!")
 print(f"🏆 Best Model: {best['Model']} with {best['Accuracy (%)']:.2f}% accuracy")
 print("🔹 Random Forest is expected to achieve 93–96% accuracy and 88–92% recall.")
 print("🔹 It provides strong performance even under slight data noise.")
 
-# ================================================================
-# 🤖 Optimized Random Forest ML Evaluation — VANET–NDN Forwarder Prediction
-# ================================================================
-# Author: Surya
-# Goal: Achieve >90–95% accuracy and strong recall for forwarder prediction
-# ================================================================
+
+#  Optimized Random Forest ML Evaluation — VANET–NDN Forwarder Prediction
+
 
 import pandas as pd
 import numpy as np
@@ -1417,16 +1283,12 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-# ================================================================
-# 1️⃣ Load Dataset
-# ================================================================
+
 file_path = "/content/NDN_Final_Sharing_Realistic.csv"  # enriched dataset
 df = pd.read_csv(file_path)
 print(f"✅ Loaded dataset: {len(df)} rows")
 
-# ================================================================
-# 2️⃣ Preprocessing
-# ================================================================
+
 # Encode categorical columns
 categorical_cols = ['main_zone', 'sub_zone', 'type', 'event_type']
 for col in categorical_cols:
@@ -1457,9 +1319,7 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# ================================================================
-# 3️⃣ Optimized Random Forest Training
-# ================================================================
+
 rf = RandomForestClassifier(
     n_estimators=1000,          # dense forest for high accuracy
     max_depth=None,             # full-depth learning
@@ -1474,27 +1334,23 @@ rf = RandomForestClassifier(
 rf.fit(X_train_scaled, y_train)
 y_pred = rf.predict(X_test_scaled)
 
-# ================================================================
-# 4️⃣ Evaluation Metrics
-# ================================================================
+
 acc = accuracy_score(y_test, y_pred) * 100
 prec = precision_score(y_test, y_pred) * 100
 rec = recall_score(y_test, y_pred) * 100
 f1 = f1_score(y_test, y_pred) * 100
 
-print("\n📊 RANDOM FOREST PERFORMANCE (Optimized 1000 Trees)")
+print("\nRANDOM FOREST PERFORMANCE (Optimized 1000 Trees)")
 print("===========================================================")
-print(f"✅ Accuracy   : {acc:.2f}%")
-print(f"✅ Precision  : {prec:.2f}%")
-print(f"✅ Recall     : {rec:.2f}%")
-print(f"✅ F1-Score   : {f1:.2f}%")
+print(f"Accuracy   : {acc:.2f}%")
+print(f"Precision  : {prec:.2f}%")
+print(f"Recall     : {rec:.2f}%")
+print(f"F1-Score   : {f1:.2f}%")
 
-print("\n🧩 Detailed Classification Report:\n")
+print("\n Detailed Classification Report:\n")
 print(classification_report(y_test, y_pred, target_names=["Non-Forwarder", "Forwarder"]))
 
-# ================================================================
-# 5️⃣ Visualization
-# ================================================================
+
 metrics = ["Accuracy", "Precision", "Recall", "F1-Score"]
 values = [acc, prec, rec, f1]
 
@@ -1511,17 +1367,15 @@ plt.grid(axis='y', linestyle='--', alpha=0.6)
 plt.tight_layout()
 plt.show()
 
-# ================================================================
-# ✅ Summary
-# ================================================================
-if acc > 90 and rec > 85:
-    print("🏆 Excellent Model! Performance exceeds 90%+ across key metrics.")
-else:
-    print("⚠️ Try tuning n_estimators or balancing data to push above 90%.")
 
-# ================================================================
-# 🚀 Surya’s Final Random Forest — High Recall & Accuracy (>95%)
-# ================================================================
+if acc > 90 and rec > 85:
+    print("Excellent Model! Performance exceeds 90%+ across key metrics.")
+else:
+    print("Try tuning n_estimators or balancing data to push above 90%.")
+
+
+#  Random Forest — High Recall & Accuracy (>95%)
+
 
 import pandas as pd
 import numpy as np
@@ -1534,24 +1388,18 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-# ================================================================
-# 1️⃣ Load Both Datasets
-# ================================================================
+
 df_ndn = pd.read_csv("/content/NDN_Final_Sharing_Realistic.csv")
 df_fwd = pd.read_csv("/content/optimized_forwarders.csv")
 
-print(f"✅ NDN Dataset: {len(df_ndn)} rows")
-print(f"✅ Forwarder Dataset: {len(df_fwd)} rows")
+print(f" NDN Dataset: {len(df_ndn)} rows")
+print(f" Forwarder Dataset: {len(df_fwd)} rows")
 
-# ================================================================
-# 2️⃣ Merge & Label
-# ================================================================
+
 df_ndn["is_forwarder_optimized"] = df_ndn["vehicle_id"].isin(df_fwd["vehicle_id"]).astype(int)
 print(f"🔗 Forwarder Labels Added — Forwarders: {df_ndn['is_forwarder_optimized'].sum()}")
 
-# ================================================================
-# 3️⃣ Encode Features
-# ================================================================
+
 categorical_cols = ['main_zone', 'sub_zone', 'type', 'event_type']
 for col in categorical_cols:
     le = LabelEncoder()
@@ -1566,9 +1414,7 @@ X = df_ndn[['main_zone', 'sub_zone', 'type', 'event_type',
             'F_part', 'R_part', 'F_R_ratio']]
 y = df_ndn['is_forwarder_optimized']
 
-# ================================================================
-# 4️⃣ Handle Class Imbalance (Oversample Forwarders)
-# ================================================================
+
 df_combined = pd.concat([X, y], axis=1)
 df_majority = df_combined[df_combined.is_forwarder_optimized == 0]
 df_minority = df_combined[df_combined.is_forwarder_optimized == 1]
@@ -1586,9 +1432,7 @@ print(f"⚖️ Balanced dataset created: {len(df_balanced)} rows (1:1 ratio)")
 X_bal = df_balanced.drop("is_forwarder_optimized", axis=1)
 y_bal = df_balanced["is_forwarder_optimized"]
 
-# ================================================================
-# 5️⃣ Split + Scale
-# ================================================================
+
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_bal)
 
@@ -1596,9 +1440,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y_bal, test_size=0.25, random_state=42, stratify=y_bal
 )
 
-# ================================================================
-# 6️⃣ Train Random Forest (Tuned)
-# ================================================================
+
 rf = RandomForestClassifier(
     n_estimators=1500,
     max_depth=None,
@@ -1613,26 +1455,22 @@ rf = RandomForestClassifier(
 rf.fit(X_train, y_train)
 y_pred = rf.predict(X_test)
 
-# ================================================================
-# 7️⃣ Evaluation
-# ================================================================
+
 acc = accuracy_score(y_test, y_pred) * 100
 prec = precision_score(y_test, y_pred) * 100
 rec = recall_score(y_test, y_pred) * 100
 f1 = f1_score(y_test, y_pred) * 100
 
-print("\n📊 FINAL RANDOM FOREST PERFORMANCE (Balanced Dataset)")
+print("\nFINAL RANDOM FOREST PERFORMANCE (Balanced Dataset)")
 print("===========================================================")
-print(f"✅ Accuracy   : {acc:.2f}%")
-print(f"✅ Precision  : {prec:.2f}%")
-print(f"✅ Recall     : {rec:.2f}%")
-print(f"✅ F1-Score   : {f1:.2f}%")
+print(f"Accuracy   : {acc:.2f}%")
+print(f"Precision  : {prec:.2f}%")
+print(f"Recall     : {rec:.2f}%")
+print(f"F1-Score   : {f1:.2f}%")
 print("-----------------------------------------------------------")
 print(classification_report(y_test, y_pred, target_names=["Non-Forwarder", "Forwarder"]))
 
-# ================================================================
-# 8️⃣ Visualization
-# ================================================================
+
 metrics = ["Accuracy", "Precision", "Recall", "F1-Score"]
 values = [acc, prec, rec, f1]
 
@@ -1648,16 +1486,14 @@ plt.grid(axis='y', linestyle='--', alpha=0.6)
 plt.tight_layout()
 plt.show()
 
-# ================================================================
-# ✅ Final Summary
-# ================================================================
+
 print("\n===========================================================")
-print("🏆 FINAL SUMMARY — FIXED MODEL (Surya’s Balanced Random Forest)")
+print(" FINAL SUMMARY — FIXED MODEL (Surya’s Balanced Random Forest)")
 print("===========================================================")
-print(f"📈 Accuracy  : {acc:.2f}%")
-print(f"🎯 Precision : {prec:.2f}%")
-print(f"📡 Recall    : {rec:.2f}%")
-print(f"🔁 F1-Score  : {f1:.2f}%")
+print(f"Accuracy  : {acc:.2f}%")
+print(f"Precision : {prec:.2f}%")
+print(f"Recall    : {rec:.2f}%")
+print(f"F1-Score  : {f1:.2f}%")
 print("-----------------------------------------------------------")
 print("🚀 Balanced data achieved — now model learns forwarders equally well.")
 print("🎯 Expect 96–98% Accuracy, 95–97% Precision, 94–96% Recall.")
